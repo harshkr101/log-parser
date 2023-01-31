@@ -8,7 +8,7 @@ import helmet  from 'helmet';
 import bodyParser from 'body-parser';
 
 const app = express();
-const port = 3000;
+const port = 3001;
 app.use(cors());
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,12 +30,15 @@ const fileStorage = multer({storage:storage}).single('file');
 
 app.post('/api/upload', fileStorage, async (req, res) =>{
   try {
-      const data =await logParser.readDataFile(req.file.originalname);
+    const readFlag =  await logParser.readDataFile(req.file.originalname);
+    if(readFlag){
+      const data = logParser.getData();
       res.status(200).json({
-        message:"Success",
-        fileName:`${req.file.originalname}`,
-        data:{data}
-      })
+          message:"Success",
+          fileName:`${req.file.originalname}`,
+          fileData:{data}
+        })
+    }
   } 
   catch (error) {
       res.status(500).end();
@@ -55,10 +58,6 @@ app.get('/api/download',(req,res)=>{
     res.send(500).end();
   }
 });
-
-
-
-
 
 app.listen(port, () => {
   return console.log(`Server is listening at http://localhost:${port}`);
