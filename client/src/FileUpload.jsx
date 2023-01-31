@@ -2,16 +2,17 @@ import React, { useState } from "react";
 
 export default function FileUpload() {
   const [selectedFile, setSelectedFile] = useState();
-  const [isFilePicked, setIsFilePicked] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [downloadFileUrl, setDownloadFileUrl] = useState("");
 
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
-    setIsFilePicked(true);
   };
 
-  const handleSubmission = () => {
+  const handleFileUpload = () => {
     const formData = new FormData();
-    formData.append("File", selectedFile);
+    formData.append("file", selectedFile);
+    setLoading(true);
     fetch("http://localhost:3001/api/upload", {
       method: "POST",
       body: formData,
@@ -19,31 +20,41 @@ export default function FileUpload() {
       .then((response) => response.json())
       .then((result) => {
         console.log("Success:", result);
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error:", error);
+        setLoading(false);
+      });
+  };
+
+  const handleFileDownload = () => {
+    // const formData = new FormData();
+    // formData.append("file", selectedFile);
+    setLoading(true);
+    fetch("http://localhost:3001/api/download/data.log", {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        console.log("Success:", result);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setLoading(false);
       });
   };
 
   return (
     <div>
+      <h1>Select a file</h1>
       <input type="file" name="file" onChange={changeHandler} />
-      {isFilePicked ? (
-        <div>
-          <p>Filename: {selectedFile.name}</p>
-          <p>Filetype: {selectedFile.type}</p>
-          <p>Size in bytes: {selectedFile.size}</p>
-          <p>
-            lastModifiedDate:{" "}
-            {selectedFile.lastModifiedDate.toLocaleDateString()}
-          </p>
-        </div>
-      ) : (
-        <p>Select a file to show details</p>
-      )}
       <div>
-        <button onClick={handleSubmission}>Submit</button>
+        <button onClick={handleFileUpload}>Submit</button>
       </div>
+
+      <button onClick={handleFileDownload}>Download</button>
     </div>
   );
 }

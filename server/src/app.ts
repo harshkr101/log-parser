@@ -30,14 +30,16 @@ const fileStorage = multer({storage:storage}).single('file');
 
 app.post('/api/upload', fileStorage, async (req, res) =>{
   try {
-    const readFlag =  await logParser.readDataFile(req.file.originalname);
+     const readFlag =  await logParser.readDataFile(req.file.originalname);
+
     if(readFlag){
       const data = logParser.getData();
       res.status(200).json({
           message:"Success",
           fileName:`${req.file.originalname}`,
-          fileData:{data}
+          data
         })
+
     }
   } 
   catch (error) {
@@ -45,19 +47,25 @@ app.post('/api/upload', fileStorage, async (req, res) =>{
   }
 });
 
-app.get('/api/download',(req,res)=>{
-  const fileName = req.body.fileName;
-  const filePath = `${rootDir}/public/data/download/${fileName}`
+app.get('/api/download/:fileName',(req,res)=>{
+  const fileName = req.params.fileName;
+  const filePath = `${rootDir}/public/data/download/${fileName}`;
+  console.log(filePath)
   try{
   if(fs.existsSync(filePath)){
     res.download(filePath);
   }else{
+
     res.status(404).end();
   }
   }catch(err){
     res.send(500).end();
   }
 });
+
+
+
+
 
 app.listen(port, () => {
   return console.log(`Server is listening at http://localhost:${port}`);
