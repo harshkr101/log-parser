@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Form, Spinner } from "react-bootstrap";
+import { Button, Form, Spinner, Alert } from "react-bootstrap";
 import download from "downloadjs";
 
 const FileComponent = () => {
@@ -12,10 +12,6 @@ const FileComponent = () => {
   };
 
   const handleFileDownload = async () => {
-    // const link = document.createElement("a");
-    // link.href = URL.createObjectURL(new Blob([fileData.file]));
-    // link.download = fileData.fileName;
-    // link.click();
     setLoading(true);
     await fetch(
       `http://localhost:3001/api/download?file=${fileData.fileName}`,
@@ -25,7 +21,13 @@ const FileComponent = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        download(data, fileData.fileName, "json");
+        // download the json file to browser
+        download(JSON.stringify(data), fileData.fileName);
+        alert("File downloaded successfully");
+      })
+      .catch((error) => {
+        console.error(error);
+        alert("Unable to download file");
       });
     setLoading(false);
   };
@@ -43,6 +45,10 @@ const FileComponent = () => {
       .then((result) => {
         setFileData(result);
         setLoading(false);
+      })
+      .catch((error) => {
+        alert("Unable to upload data file to server");
+        console.error(error);
       });
   };
 
@@ -52,6 +58,8 @@ const FileComponent = () => {
       <Form.Group className="d-flex justify-content-center">
         <Form.Control
           type="file"
+          id="filePicker"
+          accept=".log, .txt"
           onChange={handleFileUpload}
           className="w-50"
         />
@@ -76,8 +84,9 @@ const FileComponent = () => {
         </div>
       )}
       {fileData.fileName && (
-        <div className="d-flex justify-content-center mt-3">
-          <p className="w-50 text-center">{fileData.fileName}</p>
+        <div className=" row d-flex justify-content-center mt-3">
+          <Alert variant="success">Download is ready</Alert>
+          <h3 className="w-50 text-center">{fileData.fileName}</h3>
           <Button
             variant="primary"
             className="ml-3"

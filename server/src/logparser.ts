@@ -1,17 +1,19 @@
-import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 import util from 'util';
 
-const FileReadAsync  = util.promisify(fs.readFile);
-const FileWriteAsync = util.promisify(fs.writeFile);
+//const FileReadAsync  = util.promisify(fs.readFile);
+//const FileWriteAsync = util.promisify(fs.writeFile);
 
-interface ParsedData{
+// interface for parsed data
+interface ParsedData{ 
      timestamp: number,
      logLevel: string,
      transactionId: string,
      err: string; 
 }
 
+// class for LogParser
 export default class LogParser{
 
 private rawData:string[] = [];
@@ -20,7 +22,7 @@ private parsedData:ParsedData[] = [];
 async readDataFile(fileName:string){
     try {
          const filePath = `${path.resolve()}/public/data/upload/${fileName}`;
-         const data = await FileReadAsync(filePath,'utf-8');
+         const data = await fsPromises.readFile(filePath,'utf-8');
          this.rawData = data.split("\n");
          return true;
     } catch (error) {
@@ -31,7 +33,7 @@ async readDataFile(fileName:string){
  async convertData():Promise<ParsedData[]>{
     try {
         this.rawData.forEach(async element => {
-            const parsed_line = await this.parseLine(element);
+            const parsed_line = await this.parseLine(element); // convert each line in raw data to meaningful json
             if(parsed_line!==null){
                 this.parsedData.push(parsed_line);
             }
@@ -68,14 +70,8 @@ async readDataFile(fileName:string){
 async generateOutputFile(fileName:string){
     try {
          const filePath = `${path.resolve()}/public/data/download/${fileName}`;
-         if(fs.existsSync(filePath)){
-            // if file already exists then overwrite it
-            await FileWriteAsync(filePath,JSON.stringify(this.parsedData),{encoding:'utf-8',flag:'w'}); 
-         }else{
-            // create and write in file
-            await FileWriteAsync(filePath,JSON.stringify(this.parsedData),{encoding:'utf-8'}); 
-         }
-         
+         // create and write in file
+         await fsPromises.writeFile(filePath,JSON.stringify(this.parsedData));
          console.log("File written successfully")
     } catch (error) {
         console.error(error);
