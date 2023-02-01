@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import download from "downloadjs";
 
-export default function FileUpload() {
+export default function FileComponent() {
   const [selectedFile, setSelectedFile] = useState();
   const [loading, setLoading] = useState(false);
-  const [downloadFileUrl, setDownloadFileUrl] = useState("");
+  const [downloadFile, setDownloadFile] = useState("");
 
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -20,6 +21,7 @@ export default function FileUpload() {
       .then((response) => response.json())
       .then((result) => {
         console.log("Success:", result);
+        setDownloadFile(result.fileName);
         setLoading(false);
       })
       .catch((error) => {
@@ -28,24 +30,14 @@ export default function FileUpload() {
       });
   };
 
-  const handleFileDownload = () => {
-    // const formData = new FormData();
-    // formData.append("file", selectedFile);
+  const handleFileDownload = async () => {
     setLoading(true);
-    fetch("http://localhost:3001/api/download/data.log", {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log("Success:", result);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setLoading(false);
-      });
+    const response = await fetch(
+      "http://localhost:3001/api/download/?file=data.json"
+    );
+    const blob = await response.blob();
+    download(blob, `${downloadFile}`);
   };
-
   return (
     <div>
       <h1>Select a file</h1>

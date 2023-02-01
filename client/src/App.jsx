@@ -1,10 +1,10 @@
 import "./App.css";
-import FileUpload from "./FileUpload";
+import FileComponent from "./FileComponent";
 
 function App() {
   return (
     <div className="App">
-      <FileUpload />
+      <FileComponent />
     </div>
   );
 }
