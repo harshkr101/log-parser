@@ -31,8 +31,9 @@ const fileStorage = multer({storage:storage}).single('file');
 app.post('/api/upload', fileStorage, async (req, res) =>{
   try {
      const readFlag =  await logParser.readDataFile(req.file.originalname);
-
     if(readFlag){
+      await logParser.convertData();
+      await logParser.generateOutputFile(`${req.file.originalname.split(".")[0]}.json`);
       res.status(200).json({
           message:"Success",
           fileName:`${req.file.originalname.split(".")[0]}.json`,
@@ -47,21 +48,16 @@ app.post('/api/upload', fileStorage, async (req, res) =>{
 app.get('/api/download',async (req,res)=>{
   const fileName = req.query.file;
   const filePath = `${rootDir}/public/data/download/${fileName}`;
-  console.log(filePath)
   try{
-  if(fs.existsSync(filePath)){
-    console.log("file exists")
-    res.download(`${filePath}`,`${fileName}`);
-  }else{
-    res.status(404).end();
-  }
+    if(fs.existsSync(filePath)){
+      res.download(`${filePath}`,`${fileName}`);
+    }else{
+      res.status(404).end();
+    }
   }catch(err){
     res.send(500).end();
   }
 });
-
-
-
 
 
 app.listen(port, () => {
