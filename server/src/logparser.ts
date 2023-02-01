@@ -48,7 +48,7 @@ async readDataFile(fileName:string){
  async parseLine(logLine: string): Promise<ParsedData> {
   
   // regex pattern match for log line with error as log level
-    const pattern = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\s-\s(error)\s-\s(\{.*\})$/;
+    const pattern = /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z)\s-\s(error|warn)\s-\s(\{.*\})$/;
     const match = logLine.match(pattern);
 
   if (match) {
