@@ -1,9 +1,12 @@
 import "./App.css";
-import FileComponent from "./FileComponent";
+import FileComponent from "./components/FileComponent";
 
 function App() {
   return (
-    <div className="App">
+    <div
+      className="App"
+      backgroundImage="url('https://images.pexels.com/photos/302769/pexels-photo-302769.jpeg')"
+    >
       <FileComponent />
     </div>
   );
