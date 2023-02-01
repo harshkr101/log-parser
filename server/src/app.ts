@@ -33,13 +33,10 @@ app.post('/api/upload', fileStorage, async (req, res) =>{
      const readFlag =  await logParser.readDataFile(req.file.originalname);
 
     if(readFlag){
-      const data = logParser.getData();
       res.status(200).json({
           message:"Success",
-          fileName:`${req.file.originalname}`,
-          data
-        })
-
+          fileName:`${req.file.originalname.split(".")[0]}.json`,
+      })
     }
   } 
   catch (error) {
@@ -47,15 +44,15 @@ app.post('/api/upload', fileStorage, async (req, res) =>{
   }
 });
 
-app.get('/api/download/:fileName',(req,res)=>{
-  const fileName = req.params.fileName;
+app.get('/api/download',async (req,res)=>{
+  const fileName = req.query.file;
   const filePath = `${rootDir}/public/data/download/${fileName}`;
   console.log(filePath)
   try{
   if(fs.existsSync(filePath)){
-    res.download(filePath);
+    console.log("file exists")
+    res.download(`${filePath}`,`${fileName}`);
   }else{
-
     res.status(404).end();
   }
   }catch(err){
